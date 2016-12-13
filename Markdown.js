@@ -10,17 +10,21 @@ var MarkdownParser = function ()
      * @param {mixed} input
      * @returns {standardized data structure}
      */
-    var MarkdownReader = function (input) {
+    var MarkdownReader = function (input)
+    {
         var allFormats = [Html5Format, MarkdownTextFormat];
         var output = {};
-        for (var i in allFormats) {
+        for (var i in allFormats)
+        {
 
             var formatter = new allFormats[i]();
-            try {
+            try
+            {
                 output = formatter.standardize(input);
                 //successful parse? then exit loop!
                 break;
-            } catch (e) {
+            } catch (e)
+            {
                 console.log(e);
                 //not the correct format
                 output = {};
@@ -30,7 +34,8 @@ var MarkdownParser = function ()
     };
 
     var Formatter = function () {};
-    Formatter.prototype.standardize = function (inpupt) {
+    Formatter.prototype.standardize = function (inpupt)
+    {
         throw "Standardize function is not set for this object.";
     }
 
@@ -44,21 +49,26 @@ var MarkdownParser = function ()
      * @param {String} input
      * @returns {StandardObject[*]}
      */
-    MarkdownTextFormat.prototype.standardize = function (input) {
-        function reduceIndentsTo(line, count) {
+    MarkdownTextFormat.prototype.standardize = function (input)
+    {
+        function reduceIndentsTo(line, count)
+        {
             line = removeAllIndents(line);
             while (indent(line) < count) {
                 line = "    " + line;
             }
             return line;
         }
-        function removeAllIndents(text) {
+        function removeAllIndents(text)
+        {
             return text.trimLeft();
         }
-        function removeIndent(text) {
+        function removeIndent(text)
+        {
             return text.replace(/^\s{4}/, "");
         }
-        function indent(lineText) {
+        function indent(lineText)
+        {
             var indentCount = -1;
             var nowText = lineText, text = null;
             do {
@@ -68,12 +78,13 @@ var MarkdownParser = function ()
             } while (nowText != text);
             return indentCount;
         }
-        function merge(line1, line2) {
-            var header       = /^#/;
-            var blockquote   = /^>\s{1}/;
-            var olli         = /^\d+\.?/;
-            var ulli         = /^(?:-|\*)\s/;
-            var lineBreak    = /(\\)|(\\\n)$/;
+        function merge(line1, line2)
+        {
+            var header = /^#/;
+            var blockquote = /^>\s{1}/;
+            var olli = /^\d+\.?/;
+            var ulli = /^(?:-|\*)\s/;
+            var lineBreak = /(\\)|(\\\n)$/;
             var lowestIndent = Math.min(indent(line1), indent(line2));
             line1 = reduceIndentsTo(line1, indent(line1) - lowestIndent);
             line2 = reduceIndentsTo(line2, indent(line2) - lowestIndent);
@@ -114,7 +125,8 @@ var MarkdownParser = function ()
             }
             return false;
         }
-        function combineListItems(obj) {
+        function combineListItems(obj)
+        {
             var lines = obj.lines;
             var reducing = obj.reducing;
             var skip = true;
@@ -124,13 +136,16 @@ var MarkdownParser = function ()
             var line2 = null;
             var indentCount = null;
             var mergedText = null;
-            for (var i in lines) {
+            for (var i in lines)
+            {
                 curLine = i;
-                if (previousLine !== null) {
+                if (previousLine !== null)
+                {
                     line1 = lines[previousLine];
                     line2 = lines[curLine];
                     mergedText = merge(line1, line2);
-                    if (mergedText !== false) {
+                    if (mergedText !== false)
+                    {
                         lines[curLine] = mergedText;
                         delete lines[previousLine];
                     }
@@ -156,16 +171,18 @@ var MarkdownParser = function ()
         return standardData;
     }
 
-    MarkdownTextFormat.prototype.format = function (stdObj, options) {
-        function fixPunctuation( text, previousLines )
+    MarkdownTextFormat.prototype.format = function (stdObj, options)
+    {
+        function fixPunctuation(text, previousLines)
         {
-            var punctuationCorrection = /\s(\.|!|\?)/;
-            while( punctuationCorrection.test(text) )
+            var punctuationCorrection = /\s((\.|!|\?)(?:\s|$))/;
+            while (punctuationCorrection.test(text))
             {
-                var match = punctuationCorrection.exec( text );
+                var match = punctuationCorrection.exec(text);
                 text = text.replace(match[0], match[1]);
-                if( text.indexOf( match[1] ) == 0 && previousLines.length > 0){
-                    previousLines[ previousLines.length - 1 ] += match[1];
+                if (text.indexOf(match[1]) == 0 && previousLines.length > 0)
+                {
+                    previousLines[ previousLines.length - 1 ] += match[1] + " ";
                     text = text.substr(1);
                 }
             }
@@ -178,15 +195,18 @@ var MarkdownParser = function ()
          * @param {int} length
          * @returns {String[*]}
          */
-        function chunk(text, length) {
+        function chunk(text, length)
+        {
             var tokens = text.split(" ");
             var line = "";
             var formatted = [];
-            for (var i in tokens) {
-                if (tokens[i]=="") continue;
+            for (var i in tokens)
+            {
+                if (tokens[i] == "")
+                    continue;
                 if (line.length + 1 + tokens[i].length >= length)
                 {
-                    line = fixPunctuation( line, formatted );
+                    line = fixPunctuation(line, formatted);
                     formatted.push(line);
                     line = "";
                 }
@@ -194,8 +214,9 @@ var MarkdownParser = function ()
                     line += " ";
                 line += tokens[i];
             }
-            
-            if (line.length > 0) {
+
+            if (line.length > 0)
+            {
                 line = fixPunctuation(line, formatted);
                 formatted.push(line);
             }
@@ -207,7 +228,8 @@ var MarkdownParser = function ()
          * @param {StandardObject} item
          * @returns {String}
          */
-        function format(item, options) {
+        function format(item, options)
+        {
             var line = "";
             var text = null;
             var size = 75;
@@ -224,17 +246,20 @@ var MarkdownParser = function ()
             {
                 var safety = 0;
                 text = item.text;
-                while( text !== text.replace("\n","") && safety++ < 10 ){
-                    text = item.text.replace("\n","");
+                while (text !== text.replace("\n", "") && safety++ < 10)
+                {
+                    text = item.text.replace("\n", "");
                 }
-                while( text !== text.replace(/\b\s\s+\b/," ") ){
-                    text = text.replace(/\b\s\s+\b/," ");
+                while (text !== text.replace(/\b\s\s+\b/, " "))
+                {
+                    text = text.replace(/\b\s\s+\b/, " ");
                 }
                 line = text;
             } else if (item instanceof ListItem)
             {
                 var symbol = null;
-                switch (item.listType) {
+                switch (item.listType)
+                {
                     case "ol":
                         symbol = "1. ";
                         break;
@@ -269,36 +294,37 @@ var MarkdownParser = function ()
                 }
             } else if (item instanceof Paragraph)
             {
-                var internalContent = this.__proto__.format.call(this, item.containedBlocks, {spacer:" "});
+                var internalContent = this.__proto__.format.call(this, item.containedBlocks, {spacer: " "});
                 internalContent = chunk.call(this, internalContent, size);
                 internalContent = internalContent.join("\n");
                 line += internalContent + "\n\n";
             } else if (item instanceof LineBreak)
             {
                 line = "\\\n";
-            }
-            else if (item instanceof StrongText)
+            } else if (item instanceof StrongText)
             {
                 var token = "_";
-                if( options.curEmphasis && options.curEmphasis == "_" ){
+                if (options.curEmphasis && options.curEmphasis == "_") {
                     token = "*";
                 }
-                var text = this.__proto__.format.call(this, item.containedBlocks, {curEmphasis:token});
+                var text = this.__proto__.format.call(this, item.containedBlocks, {curEmphasis: token});
                 line = token + token + text + token + token;
-            }
-            else if (item instanceof EmphasizedText)
+            } else if (item instanceof EmphasizedText)
             {
                 var token = "_";
-                if( options.curEmphasis && options.curEmphasis == "_" ){
+                if (options.curEmphasis && options.curEmphasis == "_") {
                     token = "*";
                 }
-                var text = this.__proto__.format.call(this, item.containedBlocks, {curEmphasis:token});
+                var text = this.__proto__.format.call(this, item.containedBlocks, {curEmphasis: token});
                 line = token + text + token;
-            }
-            else if (item instanceof DeletedText)
+            } else if (item instanceof DeletedText)
             {
                 var text = this.__proto__.format.call(this, item.containedBlocks);
                 line = "~~" + text + "~~";
+            } else if (item instanceof UnderlinedText)
+            {
+                var text = this.__proto__.format.call(this, item.containedBlocks);
+                line = "!!!" + text + "!!!";
             }
             return line;
         }
@@ -314,7 +340,8 @@ var MarkdownParser = function ()
         }
         for (var i in stdObj) {
             stdObjItem = stdObj[i];
-            if( markdownString.length > 0 && defaultOptions.spacer ) markdownString += defaultOptions.spacer;
+            if (markdownString.length > 0 && defaultOptions.spacer)
+                markdownString += defaultOptions.spacer;
             markdownString += format.call(this, stdObjItem, defaultOptions);
         }
         return markdownString;
@@ -356,7 +383,12 @@ var MarkdownParser = function ()
         throw "Paragraphs may contain only TextNodes and LineBreaks";
     };
     Paragraph.prototype.addContent = function (element) {
-        if (element instanceof TextNode || element instanceof LineBreak || element instanceof StrongText || element instanceof EmphasizedText || element instanceof DeletedText ) {
+        if (element instanceof TextNode 
+                || element instanceof LineBreak 
+                || element instanceof StrongText 
+                || element instanceof EmphasizedText 
+                || element instanceof DeletedText
+                || element instanceof UnderlinedText) {
             StandardObject.prototype.addContent.call(this, element);
         } else {
             throw "Paragraphs may contain only TextNodes and LineBreaks";
@@ -431,6 +463,30 @@ var MarkdownParser = function ()
     DeletedText.prototype = Object.create(StandardObject.prototype);
     DeletedText.constructor = DeletedText;
 
+    /**
+     * Underlined Text is depricated in HTML5.
+     * 
+     * The <u> element still exists, but it has been redefined to mark 
+     * words that are stylistically different. The default representation in 
+     * HTML5 is still an underline. The confusion that it causes as an element is
+     * that it is sometimes confused with HTML links.
+     * 
+     * We include the underline element here because this module is intended
+     * to work in conjunction with a text editor, and users don't care about 
+     * HTML deprications when they want to style their document. We provide this 
+     * therefore for the user's benefit.
+     * 
+     * Because we want to maintain the expectations of Markdown, we will define 
+     * a new marker to identify underlined text. The marker shall be three exclamations 
+     * on either side of the text: !!!underlined text appears here!!!.
+     */
+    function UnderlinedText()
+    {
+        this.__proto__.constructor.call(this);
+    }
+    UnderlinedText.prototype = Object.create(StandardObject.prototype);
+    UnderlinedText.constructor = UnderlinedText;
+
     function StandardObjectBuilder() {
         this.HEADER = "header";
         this.BLOCKQUOTE = "blockquote";
@@ -438,6 +494,7 @@ var MarkdownParser = function ()
         this.PARAGRAPH = "p";
         this.clear();
     }
+
     /**
      * Convert array of text into an array of standard objects.
      * 
@@ -463,58 +520,57 @@ var MarkdownParser = function ()
     }
     StandardObjectBuilder.parseInlineLevelArray = function (lines)
     {
-        function findSubNodes( text, map ){
-            var tests = 
-            {
-                strong: /(__|\*\*)(.+?)\1/,
-                em: /(_|\*)(.+?)\1/,
-                del: /(~~)(.+?)\1/
-            };
+        function findSubNodes(text, map) {
+            var tests =
+                    {
+                        strong: /(__|\*\*)(.+?)\1/,
+                        em: /(_|\*)(.+?)\1/,
+                        del: /(~~)(.+?)\1/,
+                        u: /(!!!)(.+?)(!!!)/
+                    };
             var parts = [];
             var successes = {};
             var shortest = null;
-            for( var i in tests ){
-                if( tests[i].test( text ) ){
-                    successes[i] = tests[i].exec( text );
-                    if( shortest == null )
+            for (var i in tests) {
+                if (tests[i].test(text)) {
+                    successes[i] = tests[i].exec(text);
+                    if (shortest == null)
                     {
                         shortest = i;
-                    }
-                    else
+                    } else
                     {
                         var short = successes[shortest];
                         var cur = successes[i];
-                        if( cur[2].length < short[2].length ){
+                        if (cur[2].length < short[2].length) {
                             shortest = i;
                         }
                     }
                 }
             }
-            if( shortest !== null ){
-                var obj         = null;
-                var mapIndex    = "@@MAPPED" + map.index++ + "@@";
-                var mappedObj   = successes[ shortest ];
+            if (shortest !== null) {
+                var obj = null;
+                var mapIndex = "@@MAPPED" + map.index++ + "@@";
+                var mappedObj = successes[ shortest ];
                 mappedObj["type"] = shortest;
 
-                var adjustedText = text.replace( successes[shortest][0], mapIndex );
+                var adjustedText = text.replace(successes[shortest][0], mapIndex);
                 map[ mapIndex ] = mappedObj;
-                parts =  findSubNodes.call( this, adjustedText, map );
-            }
-            else
+                parts = findSubNodes.call(this, adjustedText, map);
+            } else
             {
                 var safety = 0;
                 do
                 {
                     var changeMade = false;
                     parts = text.split("@@");
-                    for( var index in parts ){
+                    for (var index in parts) {
                         var mapId = "@@" + parts[index] + "@@";
-                        if( typeof map[ mapId ] == "undefined" ){
+                        if (typeof map[ mapId ] == "undefined") {
                             var node = new TextNode(parts[index]);
                             parts[ index ] = node;
-                        }else{
+                        } else {
                             var node = null;
-                            switch( map[ mapId ]["type"] ){
+                            switch (map[ mapId ]["type"]) {
                                 case "strong":
                                     node = new StrongText();
                                     break;
@@ -523,16 +579,19 @@ var MarkdownParser = function ()
                                     break;
                                 case "del":
                                     node = new DeletedText();
-                                    break;    
+                                    break;
+                                case "u":
+                                    node = new UnderlinedText();
+                                    break;
                             }
-                            var subUnits = findSubNodes.call( this, map[ mapId ][2], map );
-                            for( var i in subUnits ){
-                                node.addContent( subUnits[i] );
+                            var subUnits = findSubNodes.call(this, map[ mapId ][2], map);
+                            for (var i in subUnits) {
+                                node.addContent(subUnits[i]);
                             }
                             parts[index] = node;
                         }
                     }
-                }while( changeMade && safety++ < 100 );
+                } while (changeMade && safety++ < 100);
             }
             return parts;
         }
@@ -544,15 +603,14 @@ var MarkdownParser = function ()
             if (text == "\n")
             {
                 node.push(new LineBreak());
-            } 
-            else
+            } else
             {
-                var sub = findSubNodes.call( this, text, { index: 0 } );
-                if( sub.length > 0 ){
-                    for( var j = 0; j < sub.length; j++ ){
-                        node.push( sub[j] );
+                var sub = findSubNodes.call(this, text, {index: 0});
+                if (sub.length > 0) {
+                    for (var j = 0; j < sub.length; j++) {
+                        node.push(sub[j]);
                     }
-                }else{
+                } else {
                     node.push(new TextNode(text.trim()));
                 }
             }
@@ -755,18 +813,22 @@ var MarkdownParser = function ()
         function convert(domElement, options) {
             var headerTag = /^H(\d+)/;
             var tagName = domElement.tagName;
-            if (domElement instanceof Text) {
+            if (domElement instanceof Text) 
+            {
                 if (domElement.textContent.trim() == "") {
                     return null;
                 } else {
                     return [new TextNode(domElement.textContent)];
                 }
-            } else if (headerTag.test(tagName)) {
+            } 
+            else if (headerTag.test(tagName)) 
+            {
                 var match = tagName.match(headerTag);
                 var level = match[1];
                 var text = domElement.textContent;
                 return [new Header(level, text)];
-            } else if (tagName == "P")
+            } 
+            else if (tagName == "P")
             {
                 var p = new Paragraph();
                 var array = StandardizationFunction.call(this, domElement, {});
@@ -774,12 +836,14 @@ var MarkdownParser = function ()
                     p.addContent(array[i]);
                 }
                 return [p];
-            } else if (tagName == "OL" || tagName == "UL")
+            } 
+            else if (tagName == "OL" || tagName == "UL")
             {
                 var options = {listType: tagName.toLowerCase()};
                 var arrayData = StandardizationFunction.call(this, domElement, options);
                 return arrayData;
-            } else if (tagName == "LI")
+            } 
+            else if (tagName == "LI")
             {
                 var listItem = new ListItem(options.listType);
                 /**
@@ -799,7 +863,8 @@ var MarkdownParser = function ()
                     }
                 }
                 return [listItem];
-            } else if (tagName == "BLOCKQUOTE")
+            } 
+            else if (tagName == "BLOCKQUOTE")
             {
                 var blockquote = new Blockquote();
                 /**
@@ -825,37 +890,46 @@ var MarkdownParser = function ()
                 //at the moment line breaks are not handled.
                 return [new LineBreak()];
             } 
-            else if (tagName == "DIV")
+            else if (tagName == "DIV" || tagName == "SPAN")
             {
                 return StandardizationFunction.call(this, domElement, {});
             } 
             else if (tagName == "B" || tagName == "STRONG")
             {
                 var strongElement = new StrongText();
-                var content = StandardizationFunction.call(this, domElement, {} );
-                for( var i in content ){
-                    strongElement.addContent( content[i] );
+                var content = StandardizationFunction.call(this, domElement, {});
+                for (var i in content) {
+                    strongElement.addContent(content[i]);
                 }
                 return [strongElement];
-            }
-            else if (tagName == "I" || tagName == "EM" )
+            } 
+            else if (tagName == "I" || tagName == "EM")
             {
                 var emphasizedElement = new EmphasizedText();
-                var content = StandardizationFunction.call(this, domElement, {} );
-                for( var i in content ){
-                    emphasizedElement.addContent( content[i] );
+                var content = StandardizationFunction.call(this, domElement, {});
+                for (var i in content) {
+                    emphasizedElement.addContent(content[i]);
                 }
                 return [emphasizedElement];
-            }
+            } 
             else if (tagName == "DEL")
             {
                 var deletedElement = new DeletedText();
-                var content = StandardizationFunction.call(this, domElement, {} );
-                for( var i in content ){
-                    deletedElement.addContent( content[i] );
+                var content = StandardizationFunction.call(this, domElement, {});
+                for (var i in content) {
+                    deletedElement.addContent(content[i]);
                 }
                 return [deletedElement];
-            }
+            } 
+            else if (tagName == "U")
+            {
+                var underlinedText = new UnderlinedText();
+                var content = StandardizationFunction.call(this, domElement, {});
+                for (var i in content) {
+                    underlinedText.addContent(content[i]);
+                }
+                return [underlinedText];
+            } 
             else
             {
                 debugger;
@@ -912,7 +986,13 @@ var MarkdownParser = function ()
     };
 
     Html5Format.prototype.format = function (standardArray, tag, forceTag) {
-        function formatHeader(stdObj, returnObj) {
+        function formatUnderline(stdObj, returnObj)
+        {
+            returnObj.string = html5Formatter.format(stdObj.containedBlocks, "u", true);
+            returnObj.last = stdObj;
+        }
+        function formatHeader(stdObj, returnObj)
+        {
             returnObj.string = "<h" + stdObj.headerLevel + ">" + stdObj.text + "</h" + stdObj.headerLevel + ">";
             returnObj.last = stdObj;
         }
@@ -948,16 +1028,15 @@ var MarkdownParser = function ()
             if (!(returnObj.last instanceof ListItem) || returnObj.last.listType !== stdObj.listType) {
                 listItemString = "<" + stdObj.listType + ">";
             }
-            if (stdObj.containedBlocks.length == 1 )
+            if (stdObj.containedBlocks.length == 1)
             {
                 var text = "";
-                if( stdObj.containedBlocks[0] instanceof TextNode) 
+                if (stdObj.containedBlocks[0] instanceof TextNode)
                 {
                     text = stdObj.containedBlocks[0].text;
-                }
-                else if( stdObj.containedBlocks[0] instanceof Paragraph )
+                } else if (stdObj.containedBlocks[0] instanceof Paragraph)
                 {
-                    text = html5Formatter.format( stdObj.containedBlocks[0].containedBlocks, "", false );
+                    text = html5Formatter.format(stdObj.containedBlocks[0].containedBlocks, "", false);
                 }
                 listItemString += "<li>" + text + "</li>";
             } else {
@@ -1002,14 +1081,15 @@ var MarkdownParser = function ()
             } else if (stdObj instanceof StrongText)
             {
                 formatStrong(stdObj, returnObj);
-            }
-            else if(stdObj instanceof EmphasizedText)
+            } else if (stdObj instanceof EmphasizedText)
             {
                 formatEmphasized(stdObj, returnObj);
-            }
-            else if(stdObj instanceof DeletedText)
+            } else if (stdObj instanceof DeletedText)
             {
                 formatDeleted(stdObj, returnObj);
+            } else if (stdObj instanceof UnderlinedText)
+            {
+                formatUnderline(stdObj, returnObj);
             }
             returnObj.string = closingTag + returnObj.string;
         }
@@ -1025,7 +1105,7 @@ var MarkdownParser = function ()
         }
         closeGrouping(null, tempObj);
         htmlString += tempObj.string;
-        if (standardArray.length > 1 || forceTag === true ) {
+        if (standardArray.length > 1 || forceTag === true) {
             htmlString = "<" + tag + ">" + htmlString + "</" + tag + ">";
         }
         return htmlString;

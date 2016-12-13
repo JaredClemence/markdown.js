@@ -9,7 +9,10 @@ and open the template in the editor.
         <title>Test file for editor.</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="../Editor.js"></script>
+        <script src="../Document.js"></script>
         <script src="../Markdown.js"></script>
+        <script src="MockTemplateProvider.js"></script>
         <script>
             function initializeTestEnvironment(testAreaId) {
                 window.editor = {
@@ -52,7 +55,9 @@ and open the template in the editor.
             <p>This is a <b>simple statement in bold</b> and this is a 
                 <i>simple statement in italic</i>.  An <em>emphasized statement</em> 
                 appears differently from a <strong>statement</strong>. Sometimes text 
-                is removed, and then <del>it is deleted</del></p>
+                is removed, and then <del>it is deleted</del> Sometimes, the 
+                user will want to <u>underline text</u> even though the HTML5 
+                specs deprecated the underlining tag.</p>
             <p>This is a non-simple statement that makes use of <strong>strong 
                     and <em>emphasized</em></strong> text in a layered format.</p>
         </div>
@@ -60,7 +65,8 @@ and open the template in the editor.
             <textarea name="text" id="text" cols="90" rows="5">
 This is a **simple statement in bold** and this is a *simple statement in italic*.
 An *emphasized statement* appears differently from a **statement**. Sometimes text
-is removed, and then ~~it is deleted~~
+is removed, and then ~~it is deleted~~. Sometimes, the user will want to !!!underline
+text!!! even though the HTML5 specs deprecated the underlining tag.
 
 This is a non-simple statement that makes use of **strong and _emphasized_** text 
 in a layered format.
