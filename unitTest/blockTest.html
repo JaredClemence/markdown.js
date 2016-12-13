@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Test file for editor.</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="../Markdown.js"></script>
+        <script>
+            function initializeTestEnvironment(testAreaId) {
+                window.editor = {
+                    documentArea: document.getElementById(testAreaId),
+                    load: function (text) {
+                        var html = MarkdownParser.read( text, MarkdownParser.HTML5 );
+                        this.documentArea.innerHTML = html;
+                        this.documentArea.contentEditable = true;
+                    },
+                    extract: function () {
+                        var html = this.documentArea;
+                        return MarkdownParser.read( html, MarkdownParser.MARKDOWN );
+                    }
+                };
+                window.plainText = [
+                    "This paragraph has no fields and needs to be edited. It should be edited, exported (saved) and then (imported) again, and the result should match the predicted outcome.",
+                    "This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited, exported (saved) and then (imported) again, and the result should match the predicted outcome.",
+                    "This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited, exported (saved) and then (imported) again, and the result should match the predicted outcome."
+                ];
+                window.plainTextResult = [
+                    "This paragraph has no fields and needs to be edited. It should be edited and the result should match the predicted outcome.",
+                    "This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited and the result should match the predicted outcome.",
+                    "This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited and the result should match the predicted outcome."
+                ];
+                window.finalRender = [
+                    "<p contenteditable=\"true\">This paragraph has no fields and needs to be edited. It should be edited and the result should match the predicted outcome.</p>",
+                    "<p contenteditable=\"true\">This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited and the result should match the predicted outcome.</p>",
+                    "<p contenteditable=\"true\">This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited and the result should match the predicted outcome.</p>"
+                ];
+            }
+        </script>
+    </head>
+    <body onload="initializeTestEnvironment('documentArea');">
+        <h1>Test Environment</h1>
+        <p>This page is intended to test the document editor for proper function.
+            The unit tests are written using Selenium driver. They may not cover all test 
+            possibilities. The intention is only to create a minimum viable product (MVP)
+            for quick release.</p>
+        <div id="documentArea">
+            <div>
+            <h1>Header Level 1</h1>
+            <h2>Header Level 2</h1>
+            <p>Paragraph with line breaks will follow. It appears commonly in the current medical records.</p>
+            <p>
+                Hospitalization: No<br/>
+                Age in Months: 36<br/>
+                Previous Diagnosis: Chronic Bronchitis
+            </p>
+            <ol>
+                <li>Ordered List Item 1</li>
+                <li>Ordered List Item 2</li>
+            </ol>
+            <ul>
+                <li>Unordered List Item 1</li>
+                <li>Unordered List Item 2</li>
+            </ul>
+            <blockquote>
+                <h1>Blockquote Header Level 1</h1>
+                <p>Blockquote Paragraph 1</p>
+                <p>Blockquote Paragraph 2</p>
+                <ol>
+                    <li>First blockquote list item.</li>
+                    <li>Second blockquote list item.</li>
+                </ol>
+            </blockquote>
+            </div>
+        </div>
+        <form>
+            <textarea name="text" id="text" cols="90" rows="5">
+# Header Level 1
+
+## Header Level 2
+
+Paragraph with line breaks will follow. It appears commonly in the current
+medical records.
+
+Hospitalization: No\
+Age in Months: 36\
+Previous Diagnosis: Chronic Bronchitis
+
+1. Ordered List Item 1
+1. Ordered List Item 2
+- Unordered List Item 1
+- Unordered List Item 2
+> # Blockquote Header Level 1
+> 
+> Blockquote Paragraph 1
+> 
+> Blockquote Paragraph 2
+> 
+> 1. First blockquote list item.
+> 1. Second blockquote list item.
+
+            </textarea>
+        </form>
+        <button id="btnLoadText" onclick="
+                (function () {
+                    var textArea = document.getElementById('text');
+                    var text = textArea.value;
+                    window.editor.load(text);
+                    textArea.value = '';
+                })();
+                ">Load Text</button>
+        <button id="btnExtractText" onclick="
+                (function () {
+                    var textArea = document.getElementById('text');
+                    var text = textArea.value;
+                    text = window.editor.extract();
+                    textArea.value = text;
+                })();
+                ">Extract Text</button>
+    </body>
+</html>

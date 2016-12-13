@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Test file for editor.</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="../Markdown.js"></script>
+        <script>
+            function initializeTestEnvironment(testAreaId) {
+                window.editor = {
+                    documentArea: document.getElementById(testAreaId),
+                    load: function (text) {
+                        var html = MarkdownParser.read( text, MarkdownParser.HTML5 );
+                        this.documentArea.innerHTML = html;
+                        this.documentArea.contentEditable = true;
+                    },
+                    extract: function () {
+                        var html = this.documentArea;
+                        return MarkdownParser.read( html, MarkdownParser.MARKDOWN );
+                    }
+                };
+                window.plainText = [
+                    "This paragraph has no fields and needs to be edited. It should be edited, exported (saved) and then (imported) again, and the result should match the predicted outcome.",
+                    "This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited, exported (saved) and then (imported) again, and the result should match the predicted outcome.",
+                    "This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited, exported (saved) and then (imported) again, and the result should match the predicted outcome."
+                ];
+                window.plainTextResult = [
+                    "This paragraph has no fields and needs to be edited. It should be edited and the result should match the predicted outcome.",
+                    "This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited and the result should match the predicted outcome.",
+                    "This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited and the result should match the predicted outcome."
+                ];
+                window.finalRender = [
+                    "<p contenteditable=\"true\">This paragraph has no fields and needs to be edited. It should be edited and the result should match the predicted outcome.</p>",
+                    "<p contenteditable=\"true\">This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited and the result should match the predicted outcome.</p>",
+                    "<p contenteditable=\"true\">This paragraph has one field and needs to be edited. The field is arbitrarily selected text item, such as the name of our coder: {{programmer_name}}. It should be edited and the result should match the predicted outcome.</p>"
+                ];
+            }
+        </script>
+    </head>
+    <body onload="initializeTestEnvironment('documentArea');">
+        <h1>Test Environment</h1>
+        <p>This page is intended to test the document editor for proper function.
+            The unit tests are written using Selenium driver. They may not cover all test 
+            possibilities. The intention is only to create a minimum viable product (MVP)
+            for quick release.</p>
+        <div id="documentArea" editable="true">
+            <p>This is a <b>simple statement in bold</b> and this is a 
+                <i>simple statement in italic</i>.  An <em>emphasized statement</em> 
+                appears differently from a <strong>statement</strong>. Sometimes text 
+                is removed, and then <del>it is deleted</del></p>
+            <p>This is a non-simple statement that makes use of <strong>strong 
+                    and <em>emphasized</em></strong> text in a layered format.</p>
+        </div>
+        <form>
+            <textarea name="text" id="text" cols="90" rows="5">
+This is a **simple statement in bold** and this is a *simple statement in italic*.
+An *emphasized statement* appears differently from a **statement**. Sometimes text
+is removed, and then ~~it is deleted~~
+
+This is a non-simple statement that makes use of **strong and _emphasized_** text 
+in a layered format.
+            </textarea>
+        </form>
+        <button id="btnLoadText" onclick="
+                (function () {
+                    var textArea = document.getElementById('text');
+                    var text = textArea.value;
+                    window.editor.load(text);
+                    textArea.value = '';
+                })();
+                ">Load Text</button>
+        <button id="btnExtractText" onclick="
+                (function () {
+                    var textArea = document.getElementById('text');
+                    var text = textArea.value;
+                    text = window.editor.extract();
+                    textArea.value = text;
+                })();
+                ">Extract Text</button>
+    </body>
+</html>
